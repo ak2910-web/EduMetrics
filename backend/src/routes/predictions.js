@@ -3,9 +3,11 @@ const axios = require('axios');
 const { body } = require('express-validator');
 const { AcademicRecord, Prediction } = require('../models');
 const { auth, allowRoles } = require('../middleware/auth');
+const { apiLimiter } = require('../middleware/rateLimit');
 const validate = require('../utils/validate');
 
 const router = express.Router();
+router.use(apiLimiter);
 router.use(auth);
 
 router.post(

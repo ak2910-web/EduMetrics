@@ -2,9 +2,11 @@ const express = require('express');
 const { body, param } = require('express-validator');
 const { AcademicRecord } = require('../models');
 const { auth, allowRoles } = require('../middleware/auth');
+const { apiLimiter } = require('../middleware/rateLimit');
 const validate = require('../utils/validate');
 
 const router = express.Router();
+router.use(apiLimiter);
 router.use(auth);
 
 router.get('/', allowRoles('teacher', 'admin'), async (req, res, next) => {
