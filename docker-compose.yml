@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: edumetrics-postgres
+    environment:
+      POSTGRES_DB: edumetrics
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    container_name: edumetrics-backend
+    environment:
+      PORT: 5000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: edumetrics
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: change-me
+      ML_SERVICE_URL: http://ml-service:8000
+    depends_on:
+      - postgres
+      - ml-service
+    ports:
+      - "5000:5000"
+
+  ml-service:
+    build:
+      context: ./ml-service
+    container_name: edumetrics-ml-service
+    environment:
+      ML_ADMIN_API_KEY: change-me
+      MODEL_VERSION: v1
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: edumetrics-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:
